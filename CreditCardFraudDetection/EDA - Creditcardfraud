@@ -135,11 +135,42 @@ p        0      1
 [1] 0.001727486 
 
 # BeanchMark number
-#-----------------------------
-> 284315/284807
-[1] 0.9982725
+#-----------------------------------
+library(randomForest)
+library(e1071)
+library(rpart)
+library(rpart.plot)
+library(caTools)
+library(readr)
+library(caret)
 
-#Conclusion : BeanchMark and Logistic Regression are same !!! 
+train$Class <- factor(train$Class)
+set.seed(1)
+split <- sample.split(card$Class, SplitRatio = 0.7)
+train <- subset(card, split == T)
+cv <- subset(card, split == F)
+
+# check output Class distributiion
+table(cv$Class)
+## 
+##     0     1 
+## 85295   148
+
+glm.model <- glm(Class ~ ., data = train1, family = "binomial")
+glm.predict <- predict(glm.model, cv, type = "response")
+table(cv$Class, glm.predict > 0.5)
+
+##    
+##     FALSE  TRUE
+##   0 85279    16
+##   1    69    79
+
+tree.model <- rpart(Class ~ ., data = train1, method = "class", minbucket = 20)
+prp(tree.model) 
+tree.predict <- predict(tree.model, cv, type = "class")
+confusionMatrix(cv$Class, tree.predict)
+
+ 
 
 
 
